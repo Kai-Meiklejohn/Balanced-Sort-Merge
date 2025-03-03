@@ -1,7 +1,9 @@
 // Balanced Sort Merge Assignment
-// Student: [Your Name], ID: 1632448
+// Name: Kai Meiklejohn, ID: 1632448
 // Solo project: 2-way sort merge
-// Created for COMP SCI course, March 2025
+// March 2025
+
+import java.io.IOException;
 
 public class XSort {
     public static void main(String[] args) {
@@ -21,4 +23,29 @@ public class XSort {
         System.out.println("Run length: " + runLength + ", Merge type: 2-way");
         // Add heapsort and merge logic here later
     }
+
+    // method for heapsort
+    private static void heapSort(String[] array) {
+        // Implementation will go here
+    }
+
+    // Helper methods for heapSort
+    private static void buildHeap(String[] array) {
+        // Implementation will go here
+    }
+
+    private static void heapify(String[] array, int heapSize, int rootIndex) {
+        // Implementation will go here
+    }
+
+    // method for creating initial sorted runs
+    private static void createInitialRuns(int runLength) throws IOException {
+        // Implementation will go here - reads from stdin, uses heapsort, creates temp files
+    }
+
+    // method for 2-way merge sort
+    private static void mergeRuns() throws IOException {
+        // Implementation will go here - performs balanced 2-way merge
+    }
+    
 }
