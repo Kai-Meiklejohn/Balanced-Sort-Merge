@@ -30,7 +30,7 @@ Examples:
 - [Heap Sort Visualization](https://www.cs.usfca.edu/~galles/visualization/HeapSort.html)
 - [Heap Sort Tutorial](https://www.geeksforgeeks.org/heap-sort/)
 - [Merge Sort Tutorial](https://www.geeksforgeeks.org/merge-sort/)
-- AI Assistance (GitHub Copilot): Helped with pseudocode structure, debugging PATH issues, and clarifying assignment requirements. All code is my own implementation.
+- AI Assistance (GitHub Copilot): Helped with documentation, debugging PATH issues, and clarifying assignment requirements. All code is my own implementation.
 
 ## Pseudocode (High-Level Description)
 Below is a plain-English breakdown of the XSort algorithm, split into key functions. It processes lines from standard input, sorts them with heapsort, and merges runs using a 2-way balanced approach.
