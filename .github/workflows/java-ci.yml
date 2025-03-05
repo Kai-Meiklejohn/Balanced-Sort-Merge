@@ -22,5 +22,33 @@ jobs:
     - name: Compile XSort
       run: javac XSort.java
 
-    - name: Run basic test
-      run: echo -e "apple\nzebra\ncat" | java XSort 64 2
+    - name: Generate large test input (200 lines)
+      run: |
+        for i in {1..50}; do
+          echo "Line $i: The quick brown fox jumps over the lazy dog." >> test_input.txt
+          echo "Line $i: A journey of $i miles begins with a single step." >> test_input.txt
+          echo "Line $i: \"Quoted text with number $i\" - Anonymous" >> test_input.txt
+          echo "Line $i: !@#$%^&* Special chars test $i" >> test_input.txt
+        done
+
+    - name: Run XSort with run length 64, 2-way merge
+      run: cat test_input.txt | java XSort 64 2 > xsort_output.txt
+
+    - name: Generate expected output with sort
+      run: cat test_input.txt | sort > expected_output.txt
+
+    - name: Compare outputs
+      run: |
+        diff xsort_output.txt expected_output.txt > diff_result.txt
+        if [ -s diff_result.txt ]; then
+          echo "Test failed: Outputs differ"
+          echo "Differences:"
+          cat diff_result.txt
+          exit 1
+        else
+          echo "Test passed: Outputs match"
+        fi
+
+    - name: Cleanup (optional)
+      if: always()
+      run: rm -f test_input.txt xsort_output.txt expected_output.txt diff_result.txt
