@@ -13,7 +13,7 @@ public class XSort {
      * @param args [0]: run length (64–1024), [1]: optional "2" for merge mode
      */
     public static void main(String[] args) throws IOException {
-        // Check number of arguments
+        // check number of arguments
         if (args.length < 1 || args.length > 2) {
             System.out.println("Usage: java XSort <run_length: 64-1024> [2]");
             System.exit(1);
@@ -32,16 +32,16 @@ public class XSort {
             System.exit(1);
         }
 
-        // Check merge mode (solo project: only "2" allowed)
+        // Check merge mode 
         if (args.length == 2 && !args[1].equals("2")) {
-            System.out.println("Solo project supports only 2-way merge. Use '2' as second argument.");
+            System.out.println("Solo project supports only 2-way merge. Use 2 as second argument.");
             System.exit(1);
         }
 
-        // Create initial sorted runs
+        // create initial sorted runs
         List<File> runs = createInitialRuns(runLength);
 
-        // If merge mode is specified, perform 2-way merge
+        // if merge mode is specified, perform 2-way merge
         if (args.length == 2) {
             mergeRuns2Way(runs);
         }
@@ -53,12 +53,12 @@ public class XSort {
      * @return list of temporary files containing sorted runs
      */
     private static List<File> createInitialRuns(int runLength) throws IOException {
-        // Initialize list to hold up to runLength lines
+        // initialise list to hold up to runLength lines
         List<String> lines = new ArrayList<>(runLength);
         List<File> runFiles = new ArrayList<>();
         int runCount = 0;
 
-        // Read from standard input using BufferedReader
+        // read from standard input using BufferedReader
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String line;
         while ((line = reader.readLine()) != null) {
@@ -66,25 +66,25 @@ public class XSort {
             if (lines.size() < runLength) {
                 lines.add(line);
             } else {
-                // List is full: sort with heapsort and write to temp file
+                // list is full: sort with heapsort and write to temp file
                 heapSort(lines);
                 File tempFile = writeRunToTempFile(lines, "run" + runCount);
                 runFiles.add(tempFile);
                 runCount++;
-                // Clear list and add current line to start new run
+                // clear list and add current line to start new run
                 lines.clear();
                 lines.add(line);
             }
         }
 
-        // Handle any remaining lines (less than runLength)
+        // handle any remaining lines (less than runLength)
         if (!lines.isEmpty()) {
             heapSort(lines);
             File tempFile = writeRunToTempFile(lines, "run" + runCount);
             runFiles.add(tempFile);
         }
 
-        // Close reader and return list of run files
+        // close reader and return list of run files
         reader.close();
         return runFiles;
     }
