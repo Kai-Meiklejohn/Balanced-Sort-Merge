@@ -3,7 +3,6 @@
 // Solo project: 2-way sort merge
 // March 2025
 
-import java.io.IOException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +13,38 @@ public class XSort {
      * @param args [0]: run length (64–1024), [1]: optional "2" for merge mode
      */
     public static void main(String[] args) throws IOException {
-        // check args, validate run length, check merge mode, call createInitialRuns and mergeRuns2Way
+        // Check number of arguments
+        if (args.length < 1 || args.length > 2) {
+            System.out.println("Usage: java XSort <run_length: 64-1024> [2]");
+            System.exit(1);
+        }
 
+        // Declare and initialize runLength with a default value
+        int runLength = 0; // Default value to satisfy compiler; will be overwritten or exit
+        try {
+            runLength = Integer.parseInt(args[0]);
+            if (runLength < 64 || runLength > 1024) {
+                System.out.println("Run length must be between 64 and 1024.");
+                System.exit(1);
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Run length must be an integer between 64 and 1024.");
+            System.exit(1);
+        }
 
+        // Check merge mode (solo project: only "2" allowed)
+        if (args.length == 2 && !args[1].equals("2")) {
+            System.out.println("Solo project supports only 2-way merge. Use '2' as second argument.");
+            System.exit(1);
+        }
+
+        // Create initial sorted runs
+        List<File> runs = createInitialRuns(runLength);
+
+        // If merge mode is specified, perform 2-way merge
+        if (args.length == 2) {
+            mergeRuns2Way(runs);
+        }
     }
 
     /**
@@ -25,10 +53,40 @@ public class XSort {
      * @return list of temporary files containing sorted runs
      */
     private static List<File> createInitialRuns(int runLength) throws IOException {
-        // read from System.in, build runs, sort with heapSort, save to temp files
+        // Initialize list to hold up to runLength lines
+        List<String> lines = new ArrayList<>(runLength);
+        List<File> runFiles = new ArrayList<>();
+        int runCount = 0;
 
+        // Read from standard input using BufferedReader
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            // If list isn’t full, add the line
+            if (lines.size() < runLength) {
+                lines.add(line);
+            } else {
+                // List is full: sort with heapsort and write to temp file
+                heapSort(lines);
+                File tempFile = writeRunToTempFile(lines, "run" + runCount);
+                runFiles.add(tempFile);
+                runCount++;
+                // Clear list and add current line to start new run
+                lines.clear();
+                lines.add(line);
+            }
+        }
 
-        return new ArrayList<>();
+        // Handle any remaining lines (less than runLength)
+        if (!lines.isEmpty()) {
+            heapSort(lines);
+            File tempFile = writeRunToTempFile(lines, "run" + runCount);
+            runFiles.add(tempFile);
+        }
+
+        // Close reader and return list of run files
+        reader.close();
+        return runFiles;
     }
 
     /**
