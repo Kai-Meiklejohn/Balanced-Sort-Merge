@@ -20,7 +20,7 @@ public class XSort {
         }
 
         // Declare and initialize runLength with a default value
-        int runLength = 0; // Default value to satisfy compiler; will be overwritten or exit
+        int runLength = 0;
         try {
             runLength = Integer.parseInt(args[0]);
             if (runLength < 64 || runLength > 1024) {
