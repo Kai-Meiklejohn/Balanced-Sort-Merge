@@ -101,6 +101,10 @@ public class XSort {
             reader.close();
         }
 
+        // print debug count lines in each file
+        System.err.println("Runs1.txt: " + countLines(temp1) + " lines");
+        System.err.println("Runs2.txt: " + countLines(temp2) + " lines");
+
         return runFiles; // returns [runs1.txt, runs2.txt]
     }
 
