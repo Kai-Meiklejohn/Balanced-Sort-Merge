@@ -109,26 +109,6 @@ public class XSort {
     }
 
     /**
-     * writes a sorted run to a temporary file
-     * @param lines sorted list of lines
-     * @param prefix file prefix (e.g. "run0")
-     * @return temporary file object
-     */
-    private static File writeRunToTempFile(List<String> lines, String prefix) throws IOException {
-        // write lines to a temp file, preserving contents - unused, kept from earlier design
-        File tempFile = new File(prefix + ".txt");
-        
-        // write lines to the temp file, keeping original content
-        try (PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
-            for (String line : lines) {
-                writer.println(line); // println keeps the line as-is, adds platform-specific newline
-            }
-        }
-        
-        return tempFile;
-    }
-
-    /**
      * sorts an ArrayList of strings in ascending order using heapsort
      * @param list list of strings to sort
      */
@@ -229,29 +209,6 @@ public class XSort {
 
         in1.delete();
         in2.delete();
-    }
-
-    /**
-     * distributes initial runs across two temp files
-     * @param runFiles list of run files
-     * @param temp1 first temp file
-     * @param temp2 second temp file
-     */
-    private static void distributeRuns(List<File> runFiles, File temp1, File temp2) throws IOException {
-        // split runs into temp1 (odd) and temp2 (even) - unused, kept for potential reuse
-        try (PrintWriter writer1 = new PrintWriter(new FileWriter(temp1));
-             PrintWriter writer2 = new PrintWriter(new FileWriter(temp2))) {
-            for (int i = 0; i < runFiles.size(); i++) {
-                PrintWriter target = (i % 2 == 0) ? writer1 : writer2;
-                try (BufferedReader reader = new BufferedReader(new FileReader(runFiles.get(i)))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        target.println(line);
-                    }
-                }
-                runFiles.get(i).delete();
-            }
-        }
     }
 
     /**
