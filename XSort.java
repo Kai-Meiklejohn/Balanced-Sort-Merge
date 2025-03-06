@@ -195,8 +195,8 @@ public class XSort {
 
         File in1 = runFiles.get(0); // runs1.txt
         File in2 = runFiles.get(1); // runs2.txt
-        File out1 = new File("out1.txt");
-        File out2 = new File("out2.txt");
+        File temp1 = new File("temp1.txt");
+        File temp2 = new File("temp2.txt");
 
         // estimate runs per file (could be uneven due to input size)
         int totalLines1 = countLines(in1);
@@ -204,23 +204,23 @@ public class XSort {
         int runsPerFile = Math.max((totalLines1 + runLength - 1) / runLength, 
                                    (totalLines2 + runLength - 1) / runLength);
 
-        // perform merge passes until one run remains
-        while (runsPerFile > 1) {
-            mergePass(in1, in2, out1, out2, runsPerFile);
-            runsPerFile = (runsPerFile + 1) / 2; // ceiling division for next pass
-            in1.delete();
-            in2.delete();
-            in1 = out1;
-            in2 = out2;
-            out1 = new File("out1.txt");
-            out2 = new File("out2.txt");
-        }
-
-        // final merge to stdout
-        if (runsPerFile == 1) {
-            mergePass(in1, in2, null, null, 1); // null outputs go to stdout
-        } else {
-            outputRunToStdout(in1); // if only one file has data
+        // Only do merge passes if there's more than one run
+        if (runsPerFile > 1) {
+            while (runsPerFile > 1) {
+                mergePass(in1, in2, temp1, temp2, runsPerFile);
+                runsPerFile = (runsPerFile + 1) / 2;
+                in1.delete();
+                in2.delete();
+                in1 = temp1;
+                in2 = temp2;
+                temp1 = new File("temp1.txt");
+                temp2 = new File("temp2.txt");
+            }
+            // final merge to stdout
+            mergePass(in1, in2, null, null, 1);
+        } else if (totalLines1 + totalLines2 > 0) {
+            // if only one run, just output it
+            outputRunToStdout(in1);
         }
 
         in1.delete();
@@ -268,10 +268,9 @@ public class XSort {
             String line2 = reader2.readLine();
             boolean useFirstOutput = true;
             int runsMerged = 0;
-            PrintWriter currentWriter = writer1; // Initialize outside loop
 
             while (runsMerged < runsPerFile && (line1 != null || line2 != null)) {
-                currentWriter = useFirstOutput ? writer1 : writer2;
+                PrintWriter currentWriter = useFirstOutput ? writer1 : writer2;
                 int linesWritten = 0;
 
                 // merge one pair of runs (up to runLength lines or end of file)
@@ -297,6 +296,7 @@ public class XSort {
             }
 
             // flush remaining lines using last currentWriter
+            PrintWriter currentWriter = useFirstOutput ? writer1 : writer2;
             while (line1 != null) {
                 currentWriter.println(line1);
                 line1 = reader1.readLine();
