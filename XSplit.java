@@ -32,6 +32,7 @@ public class XSplit {
 
         // If only one argument, write runs to runs.txt and clean up
         if (args.length == 1) {
+            System.err.println("Outputting runs to runs.txt");
             outputRunsToFile(runs, new File("runs.txt"));
         }
         // Two arguments: Leave runs1.txt and runs2.txt for XMerge, no cleanup here
