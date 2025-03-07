@@ -75,7 +75,13 @@ public class XMerge {
             if (tape2.exists())
                 tape2.delete();
         } else if (totalLines1 + totalLines2 > 0) {
-            outputRunToStdout(tape1);
+            System.err.println("Merging final runs...");
+            if (totalLines1 > 0) {
+                outputRunToStdout(tape1);
+            }
+            if (totalLines2 > 0) {
+                outputRunToStdout(tape2);
+            }
             if (tape1.exists())
                 tape1.delete();
             if (tape2.exists())
