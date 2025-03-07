@@ -31,6 +31,8 @@ public class XMerge {
         List<File> runFiles = new ArrayList<>();
         runFiles.add(new File("runs1.txt"));
         runFiles.add(new File("runs2.txt"));
+        // print the number of run files
+        System.err.println("Amount of runs: " + runFiles.size());
         mergeRuns2Way(runFiles);
     }
 
@@ -40,59 +42,68 @@ public class XMerge {
             System.exit(1);
         }
 
-        File in1 = runFiles.get(0);
-        File in2 = runFiles.get(1);
-        File temp1 = new File("temp1.txt");
-        File temp2 = new File("temp2.txt");
+        File tape1 = runFiles.get(0);
+        File tape2 = runFiles.get(1);
+        File tape3 = new File("temp1.txt");
+        File tape4 = new File("temp2.txt");
 
-        int totalLines1 = countLines(in1);
-        int totalLines2 = countLines(in2);
-        int runsPerFile = Math.max((totalLines1 + runLength - 1) / runLength, 
-                                   (totalLines2 + runLength - 1) / runLength);
+        int totalLines1 = countLines(tape1);
+        int totalLines2 = countLines(tape2);
+        int runsPerFile = Math.max((totalLines1 + runLength - 1) / runLength,
+                (totalLines2 + runLength - 1) / runLength);
 
         if (runsPerFile > 1) {
             while (runsPerFile > 1) {
-                mergePass(in1, in2, temp1, temp2, runsPerFile);
+                mergePass(tape1, tape2, tape3, tape4, runsPerFile);
                 runsPerFile = (runsPerFile + 1) / 2;
-                if (in1.exists()) in1.delete();
-                if (in2.exists()) in2.delete();
-                if (temp1.exists()) temp1.renameTo(new File("runs1.txt"));
-                if (temp2.exists()) temp2.renameTo(new File("runs2.txt"));
-                in1 = new File("runs1.txt");
-                in2 = new File("runs2.txt");
-                temp1 = new File("temp1.txt");
-                temp2 = new File("temp2.txt");
+                if (tape1.exists())
+                    tape1.delete();
+                if (tape2.exists())
+                    tape2.delete();
+                if (tape3.exists())
+                    tape3.renameTo(new File("runs1.txt"));
+                if (tape4.exists())
+                    tape4.renameTo(new File("runs2.txt"));
+                tape1 = new File("runs1.txt");
+                tape2 = new File("runs2.txt");
+                tape3 = new File("temp1.txt");
+                tape4 = new File("temp2.txt");
             }
-            mergePass(in1, in2, null, null, 1);
-            if (in1.exists()) in1.delete();
-            if (in2.exists()) in2.delete();
+            mergePass(tape1, tape2, null, null, 1);
+            if (tape1.exists())
+                tape1.delete();
+            if (tape2.exists())
+                tape2.delete();
         } else if (totalLines1 + totalLines2 > 0) {
-            outputRunToStdout(in1);
-            if (in1.exists()) in1.delete();
-            if (in2.exists()) in2.delete();
+            outputRunToStdout(tape1);
+            if (tape1.exists())
+                tape1.delete();
+            if (tape2.exists())
+                tape2.delete();
         }
     }
 
     private static void mergePass(File in1, File in2, File out1, File out2, int runsPerFile) throws IOException {
         try (BufferedReader reader1 = new BufferedReader(new FileReader(in1));
-             BufferedReader reader2 = new BufferedReader(new FileReader(in2));
-             PrintWriter writer1 = out1 != null ? new PrintWriter(new FileWriter(out1)) : new PrintWriter(System.out, true);
-             PrintWriter writer2 = out2 != null ? new PrintWriter(new FileWriter(out2)) : null) {
-            
+                BufferedReader reader2 = new BufferedReader(new FileReader(in2));
+                PrintWriter writer1 = out1 != null ? new PrintWriter(new FileWriter(out1))
+                        : new PrintWriter(System.out, true);
+                PrintWriter writer2 = out2 != null ? new PrintWriter(new FileWriter(out2)) : null) {
+
             String line1 = reader1.readLine();
             String line2 = reader2.readLine();
             boolean useFirstOutput = true;
             int runsMerged = 0;
-    
+
             while (runsMerged < runsPerFile && (line1 != null || line2 != null)) {
                 PrintWriter currentWriter = useFirstOutput || writer2 == null ? writer1 : writer2;
                 int run1Count = 0;
                 int run2Count = 0;
-    
+
                 // Merge one run from each input file
-                while ((run1Count < runLength || run2Count < runLength) && 
-                      (line1 != null || line2 != null)) {
-                    
+                while ((run1Count < runLength || run2Count < runLength) &&
+                        (line1 != null || line2 != null)) {
+
                     // If run1 is exhausted or reached its length limit, use run2
                     if (line1 == null || run1Count >= runLength) {
                         if (line2 != null && run2Count < runLength) {
@@ -102,13 +113,13 @@ public class XMerge {
                         } else {
                             break; // Both runs are exhausted or at their limits
                         }
-                    } 
+                    }
                     // If run2 is exhausted or reached its length limit, use run1
                     else if (line2 == null || run2Count >= runLength) {
                         currentWriter.println(line1);
                         line1 = reader1.readLine();
                         run1Count++;
-                    } 
+                    }
                     // Compare and use the smaller value
                     else if (line1.compareTo(line2) <= 0) {
                         currentWriter.println(line1);
@@ -120,14 +131,15 @@ public class XMerge {
                         run2Count++;
                     }
                 }
-    
+
                 runsMerged++;
                 useFirstOutput = !useFirstOutput;
             }
-    
-            // Process any remaining runs - this only happens when one file has more runs than the other
+
+            // Process any remaining runs - this only happens when one file has more runs
+            // than the other
             PrintWriter currentWriter = writer2 == null ? writer1 : (useFirstOutput ? writer1 : writer2);
-            
+
             // Process any remaining complete runs
             while (line1 != null || line2 != null) {
                 int count = 0;
@@ -136,14 +148,14 @@ public class XMerge {
                     line1 = reader1.readLine();
                     count++;
                 }
-                
+
                 count = 0;
                 while (count < runLength && line2 != null) {
                     currentWriter.println(line2);
                     line2 = reader2.readLine();
                     count++;
                 }
-                
+
                 // Only alternate writers if we're not outputting to stdout
                 if (writer2 != null) {
                     useFirstOutput = !useFirstOutput;
@@ -155,7 +167,7 @@ public class XMerge {
 
     private static void outputRunToStdout(File runFile) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(runFile));
-             PrintWriter stdout = new PrintWriter(System.out, true)) {
+                PrintWriter stdout = new PrintWriter(System.out, true)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 stdout.println(line);
@@ -166,7 +178,8 @@ public class XMerge {
     private static int countLines(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int lines = 0;
-            while (reader.readLine() != null) lines++;
+            while (reader.readLine() != null)
+                lines++;
             return lines;
         }
     }

@@ -48,11 +48,13 @@ public class XSplit {
         int totalInputLines = 0;
 
         // Delete existing files to avoid appending
-        if (temp1.exists()) temp1.delete();
-        if (temp2.exists()) temp2.delete();
+        if (temp1.exists())
+            temp1.delete();
+        if (temp2.exists())
+            temp2.delete();
 
         try (PrintWriter writer1 = new PrintWriter(new FileWriter(temp1));
-             PrintWriter writer2 = new PrintWriter(new FileWriter(temp2))) {
+                PrintWriter writer2 = new PrintWriter(new FileWriter(temp2))) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -140,7 +142,8 @@ public class XSplit {
     private static int countLines(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int lines = 0;
-            while (reader.readLine() != null) lines++;
+            while (reader.readLine() != null)
+                lines++;
             return lines;
         }
     }
