@@ -49,14 +49,16 @@ public class XSplit {
         int totalInputLines = 0;
 
         // Delete existing files to avoid appending
-        if (temp1.exists())
-            temp1.delete();
-        if (temp2.exists())
-            temp2.delete();
+        if (temp1.exists() && !temp1.delete()) {
+            System.err.println("Failed to delete " + temp1.getName());
+        }
+        if (temp2.exists() && !temp2.delete()) {
+            System.err.println("Failed to delete " + temp2.getName());
+        }
 
         try (PrintWriter writer1 = new PrintWriter(new FileWriter(temp1));
-                PrintWriter writer2 = new PrintWriter(new FileWriter(temp2))) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            PrintWriter writer2 = new PrintWriter(new FileWriter(temp2));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 totalInputLines++;
@@ -82,7 +84,7 @@ public class XSplit {
                 }
             }
 
-            reader.close();
+            // reader.close();
         }
 
         System.err.println("Total input lines read: " + totalInputLines);
