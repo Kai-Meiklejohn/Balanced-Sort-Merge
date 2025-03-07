@@ -30,11 +30,11 @@ public class XSplit {
 
         List<File> runs = createInitialRuns();
 
-        // If only one argument, write runs to runs.txt
+        // If only one argument, write runs to runs.txt and clean up
         if (args.length == 1) {
             outputRunsToFile(runs, new File("runs.txt"));
         }
-        // Two arguments: Just create runs for XMerge to use
+        // Two arguments: Leave runs1.txt and runs2.txt for XMerge
     }
 
     private static List<File> createInitialRuns() throws IOException {
@@ -94,7 +94,12 @@ public class XSplit {
                         writer.println(line);
                     }
                 }
-                if (runFile.exists()) runFile.delete();
+                // Delete temporary run files
+                if (runFile.exists()) {
+                    if (!runFile.delete()) {
+                        System.err.println("Failed to delete " + runFile.getName());
+                    }
+                }
             }
         }
     }

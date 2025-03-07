@@ -14,9 +14,11 @@ public class XSort {
             System.exit(1);
         }
 
-        // Run XSplit
-        ProcessBuilder splitPb = new ProcessBuilder("java", "XSplit", args[0]);
-        splitPb.inheritIO(); // Pipe stdin/stdout/stderr directly
+        // Run XSplit with full args (it handles one-arg case internally)
+        String[] splitArgs = args.length == 1 ? new String[]{"XSplit", args[0]} : new String[]{"XSplit", args[0], "2"};
+        ProcessBuilder splitPb = new ProcessBuilder("java", splitArgs[0], splitArgs[1]);
+        if (args.length == 2) splitPb.command().add("2");
+        splitPb.inheritIO();
         Process splitProcess = splitPb.start();
         try {
             splitProcess.waitFor();
