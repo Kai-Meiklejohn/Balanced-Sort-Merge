@@ -78,45 +78,77 @@ public class XMerge {
              BufferedReader reader2 = new BufferedReader(new FileReader(in2));
              PrintWriter writer1 = out1 != null ? new PrintWriter(new FileWriter(out1)) : new PrintWriter(System.out, true);
              PrintWriter writer2 = out2 != null ? new PrintWriter(new FileWriter(out2)) : null) {
+            
             String line1 = reader1.readLine();
             String line2 = reader2.readLine();
             boolean useFirstOutput = true;
             int runsMerged = 0;
-
+    
             while (runsMerged < runsPerFile && (line1 != null || line2 != null)) {
                 PrintWriter currentWriter = useFirstOutput || writer2 == null ? writer1 : writer2;
-                int linesWritten = 0;
-
-                while (linesWritten < runLength && (line1 != null || line2 != null)) {
-                    if (line1 == null) {
-                        currentWriter.println(line2);
-                        line2 = reader2.readLine();
-                    } else if (line2 == null) {
+                int run1Count = 0;
+                int run2Count = 0;
+    
+                // Merge one run from each input file
+                while ((run1Count < runLength || run2Count < runLength) && 
+                      (line1 != null || line2 != null)) {
+                    
+                    // If run1 is exhausted or reached its length limit, use run2
+                    if (line1 == null || run1Count >= runLength) {
+                        if (line2 != null && run2Count < runLength) {
+                            currentWriter.println(line2);
+                            line2 = reader2.readLine();
+                            run2Count++;
+                        } else {
+                            break; // Both runs are exhausted or at their limits
+                        }
+                    } 
+                    // If run2 is exhausted or reached its length limit, use run1
+                    else if (line2 == null || run2Count >= runLength) {
                         currentWriter.println(line1);
                         line1 = reader1.readLine();
-                    } else if (line1.compareTo(line2) <= 0) {
+                        run1Count++;
+                    } 
+                    // Compare and use the smaller value
+                    else if (line1.compareTo(line2) <= 0) {
                         currentWriter.println(line1);
                         line1 = reader1.readLine();
+                        run1Count++;
                     } else {
                         currentWriter.println(line2);
                         line2 = reader2.readLine();
+                        run2Count++;
                     }
-                    linesWritten++;
                 }
-
+    
                 runsMerged++;
                 useFirstOutput = !useFirstOutput;
             }
-
-            // Use writer1 for remaining lines if writer2 is null
-            PrintWriter currentWriter = writer2 == null || useFirstOutput ? writer1 : writer2;
-            while (line1 != null) {
-                currentWriter.println(line1);
-                line1 = reader1.readLine();
-            }
-            while (line2 != null) {
-                currentWriter.println(line2);
-                line2 = reader2.readLine();
+    
+            // Process any remaining runs - this only happens when one file has more runs than the other
+            PrintWriter currentWriter = writer2 == null ? writer1 : (useFirstOutput ? writer1 : writer2);
+            
+            // Process any remaining complete runs
+            while (line1 != null || line2 != null) {
+                int count = 0;
+                while (count < runLength && line1 != null) {
+                    currentWriter.println(line1);
+                    line1 = reader1.readLine();
+                    count++;
+                }
+                
+                count = 0;
+                while (count < runLength && line2 != null) {
+                    currentWriter.println(line2);
+                    line2 = reader2.readLine();
+                    count++;
+                }
+                
+                // Only alternate writers if we're not outputting to stdout
+                if (writer2 != null) {
+                    useFirstOutput = !useFirstOutput;
+                    currentWriter = useFirstOutput ? writer1 : writer2;
+                }
             }
         }
     }
