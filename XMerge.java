@@ -84,7 +84,7 @@ public class XMerge {
             int runsMerged = 0;
 
             while (runsMerged < runsPerFile && (line1 != null || line2 != null)) {
-                PrintWriter currentWriter = useFirstOutput ? writer1 : writer2;
+                PrintWriter currentWriter = useFirstOutput || writer2 == null ? writer1 : writer2;
                 int linesWritten = 0;
 
                 while (linesWritten < runLength && (line1 != null || line2 != null)) {
@@ -108,7 +108,8 @@ public class XMerge {
                 useFirstOutput = !useFirstOutput;
             }
 
-            PrintWriter currentWriter = useFirstOutput ? writer1 : writer2;
+            // Use writer1 for remaining lines if writer2 is null
+            PrintWriter currentWriter = writer2 == null || useFirstOutput ? writer1 : writer2;
             while (line1 != null) {
                 currentWriter.println(line1);
                 line1 = reader1.readLine();

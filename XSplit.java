@@ -34,7 +34,7 @@ public class XSplit {
         if (args.length == 1) {
             outputRunsToFile(runs, new File("runs.txt"));
         }
-        // Two arguments: Leave runs1.txt and runs2.txt for XMerge
+        // Two arguments: Leave runs1.txt and runs2.txt for XMerge, no cleanup here
     }
 
     private static List<File> createInitialRuns() throws IOException {
@@ -47,8 +47,12 @@ public class XSplit {
         boolean writeToFirst = true;
         int totalInputLines = 0;
 
-        try (PrintWriter writer1 = new PrintWriter(new FileWriter(temp1, true));
-             PrintWriter writer2 = new PrintWriter(new FileWriter(temp2, true))) {
+        // Delete existing files to avoid appending
+        if (temp1.exists()) temp1.delete();
+        if (temp2.exists()) temp2.delete();
+
+        try (PrintWriter writer1 = new PrintWriter(new FileWriter(temp1));
+             PrintWriter writer2 = new PrintWriter(new FileWriter(temp2))) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -94,11 +98,8 @@ public class XSplit {
                         writer.println(line);
                     }
                 }
-                // Delete temporary run files
-                if (runFile.exists()) {
-                    if (!runFile.delete()) {
-                        System.err.println("Failed to delete " + runFile.getName());
-                    }
+                if (runFile.exists() && !runFile.delete()) {
+                    System.err.println("Failed to delete " + runFile.getName());
                 }
             }
         }

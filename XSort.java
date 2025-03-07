@@ -14,7 +14,6 @@ public class XSort {
             System.exit(1);
         }
 
-        // Run XSplit with full args (it handles one-arg case internally)
         String[] splitArgs = args.length == 1 ? new String[]{"XSplit", args[0]} : new String[]{"XSplit", args[0], "2"};
         ProcessBuilder splitPb = new ProcessBuilder("java", splitArgs[0], splitArgs[1]);
         if (args.length == 2) splitPb.command().add("2");
@@ -27,7 +26,6 @@ public class XSort {
             System.exit(1);
         }
 
-        // If two arguments, run XMerge
         if (args.length == 2) {
             if (!args[1].equals("2")) {
                 System.out.println("Solo project supports only 2-way merge. Use 2 as second argument.");
