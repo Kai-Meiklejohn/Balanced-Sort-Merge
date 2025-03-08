@@ -3,7 +3,6 @@
 // Name: Kai Meiklejohn
 // ID: 1632448
 // Solo project: 2-way sort merge
-// March 2025
 
 import java.io.*;
 
@@ -16,15 +15,15 @@ public class XSort {
         }
 
         // execute first program that makes runs
-        ProcessBuilder splitPb = new ProcessBuilder("java", "XSplit", args[0]);
+        ProcessBuilder xSplitProcessBuilder = new ProcessBuilder("java", "XSplit", args[0]);
         if (args.length == 2)
-            splitPb.command().add(args[1]);  // add the 2nd arg if we got one
+            xSplitProcessBuilder.command().add(args[1]);  // add the 2nd arg if we got one
             
         // redirect stuff from parent process cuz we need the input
-        splitPb.redirectInput(ProcessBuilder.Redirect.INHERIT);
-        splitPb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        xSplitProcessBuilder.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        xSplitProcessBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
         
-        Process splitProcess = splitPb.start();
+        Process splitProcess = xSplitProcessBuilder.start();
         try {
             // wait for XSplit to finish b4 continuing
             int exitCode = splitProcess.waitFor();
@@ -42,19 +41,19 @@ public class XSort {
         if (args.length == 2) {
             // sanity check - make sure they asked for 2-way merge
             if (!args[1].equals("2")) {
-                System.out.println("Solo project supports only 2-way merge. Use 2 as second argument.");
+                System.out.println("Only supports 2-way merge. Use 2 as second argument.");
                 System.exit(1);
             }
             
             // setup the merge program with same params
-            ProcessBuilder mergePb = new ProcessBuilder("java", "XMerge", args[0], "2");
+            ProcessBuilder xMergeProcessBuilder = new ProcessBuilder("java", "XMerge", args[0], "2");
             
             // need to get output back to parent proccess
-            mergePb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            mergePb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            xMergeProcessBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            xMergeProcessBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
             
             // run XMerge & wait for it to finish
-            Process mergeProcess = mergePb.start();
+            Process mergeProcess = xMergeProcessBuilder.start();
             try {
                 int exitCode = mergeProcess.waitFor();
                 if (exitCode != 0) {

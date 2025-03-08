@@ -2,7 +2,6 @@
 // Creates initial sorted runs from standard input
 // Name: Kai Meiklejohn
 // ID: 1632448
-// March 2025
 
 import java.io.*;
 import java.util.ArrayList;
