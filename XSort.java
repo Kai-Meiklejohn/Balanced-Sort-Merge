@@ -19,13 +19,13 @@ public class XSort {
         if (args.length == 2)
             xSplitProcessBuilder.command().add(args[1]);  // add the 2nd arg if we got one
             
-        // redirect stuff from parent process cuz we need the input
+        // redirect stuff from parent process cause we need the input
         xSplitProcessBuilder.redirectInput(ProcessBuilder.Redirect.INHERIT);
         xSplitProcessBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
         
         Process splitProcess = xSplitProcessBuilder.start();
         try {
-            // wait for XSplit to finish b4 continuing
+            // wait for XSplit to finish before continuing
             int exitCode = splitProcess.waitFor();
             if (exitCode != 0) {
                 System.err.println("XSplit failed with exit code " + exitCode);
@@ -52,7 +52,7 @@ public class XSort {
             xMergeProcessBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             xMergeProcessBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
             
-            // run XMerge & wait for it to finish
+            // run XMerge and wait for it to finish
             Process mergeProcess = xMergeProcessBuilder.start();
             try {
                 int exitCode = mergeProcess.waitFor();
