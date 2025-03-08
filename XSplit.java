@@ -11,6 +11,8 @@ import java.util.List;
 public class XSplit {
     private static int runLength;
 
+    // main method - checks args and calls run creation func
+    // also handles the file writing if we only want the runs
     public static void main(String[] args) throws IOException {
         if (args.length < 1 || args.length > 2) {
             System.out.println("Usage: java XSplit <run_length: 64-1024> [2]");
@@ -37,6 +39,8 @@ public class XSplit {
         }
     }
 
+    // reads from stidn and creates sorted runs of run_length
+    // distributes the runs between 2 diff "tape" files in alternating pattern
     private static List<File> createInitialRuns() throws IOException {
         List<String> lines = new ArrayList<>(runLength);
         List<File> runFiles = new ArrayList<>();
@@ -64,6 +68,7 @@ public class XSplit {
                 if (lines.size() < runLength) {
                     lines.add(line);
                 } else {
+                    // got enough lines for a run, now sort and write to appropriate file
                     heapSort(lines);
                     PrintWriter target = writeToFirst ? writer1 : writer2;
                     for (String sortedLine : lines) {
@@ -75,6 +80,7 @@ public class XSplit {
                 }
             }
 
+            // gotta handle leftover lines at the end
             if (!lines.isEmpty()) {
                 heapSort(lines);
                 PrintWriter target = writeToFirst ? writer1 : writer2;
@@ -82,8 +88,6 @@ public class XSplit {
                     target.println(sortedLine);
                 }
             }
-
-            // reader.close();
         }
 
         System.err.println("Total input lines read: " + totalInputLines);
@@ -93,6 +97,8 @@ public class XSplit {
         return runFiles;
     }
 
+    // takes all the runs from seprate files and combines them into 1 file
+    // this is for when we only wanna output sorted runs and skip the merge
     private static void outputRunsToFile(List<File> runFiles, File outputFile) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
             for (File runFile : runFiles) {
@@ -109,11 +115,15 @@ public class XSplit {
         }
     }
 
+    // implements heap sort to sort the runs in memory
+    // sorts the given list in place - no new lists r created
     private static void heapSort(List<String> list) {
         int n = list.size();
+        // build the heap (rearrange array)
         for (int i = n / 2 - 1; i >= 0; i--) {
             heapify(list, n, i);
         }
+        // extract elmts one by one from heap
         for (int i = n - 1; i > 0; i--) {
             String temp = list.get(0);
             list.set(0, list.get(i));
@@ -122,6 +132,8 @@ public class XSplit {
         }
     }
 
+    // heapify a subtree with root at given index
+    // maintains the max heap property recursivly
     private static void heapify(List<String> list, int n, int i) {
         int largest = i;
         int left = 2 * i + 1;
@@ -141,6 +153,8 @@ public class XSplit {
         }
     }
 
+    // count how many lines in a file, needed for reporting
+    // just reads thru the whole file and counts lines
     private static int countLines(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int lines = 0;
