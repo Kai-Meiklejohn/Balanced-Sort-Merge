@@ -90,9 +90,9 @@ public class XSplit {
             }
         }
 
-        System.err.println("Total input lines read: " + totalInputLines);
-        System.err.println("Runs1.txt: " + countLines(temp1) + " lines, " + temp1.length() + " bytes");
-        System.err.println("Runs2.txt: " + countLines(temp2) + " lines, " + temp2.length() + " bytes");
+        // System.err.println("Total input lines read: " + totalInputLines);
+        // System.err.println("Runs1.txt: " + countLines(temp1) + " lines, " + temp1.length() + " bytes");
+        // System.err.println("Runs2.txt: " + countLines(temp2) + " lines, " + temp2.length() + " bytes");
 
         return runFiles;
     }
@@ -116,14 +116,14 @@ public class XSplit {
     }
 
     // implements heap sort to sort the runs in memory
-    // sorts the given list in place - no new lists r created
+    // sorts the given list in place - no new lists are created
     private static void heapSort(List<String> list) {
         int n = list.size();
         // build the heap (rearrange array)
         for (int i = n / 2 - 1; i >= 0; i--) {
             heapify(list, n, i);
         }
-        // extract elmts one by one from heap
+        // extract elements one by one from heap
         for (int i = n - 1; i > 0; i--) {
             String temp = list.get(0);
             list.set(0, list.get(i));
@@ -150,17 +150,6 @@ public class XSplit {
             list.set(i, list.get(largest));
             list.set(largest, temp);
             heapify(list, n, largest);
-        }
-    }
-
-    // count how many lines in a file, needed for reporting
-    // just reads thru the whole file and counts lines
-    private static int countLines(File file) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            int lines = 0;
-            while (reader.readLine() != null)
-                lines++;
-            return lines;
         }
     }
 }

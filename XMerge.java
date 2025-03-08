@@ -121,7 +121,7 @@ public class XMerge {
             while (line1 != null || line2 != null) {
                 // merge one pair of runs at a time
                 while (runLines1 < currentRunSize && runLines2 < currentRunSize && line1 != null && line2 != null) {
-                    // take the smaller element first (lexicografikally)
+                    // take the smaller element first
                     if (line1.compareTo(line2) <= 0) {
                         currentWriter.println(line1);
                         line1 = reader1.readLine();
