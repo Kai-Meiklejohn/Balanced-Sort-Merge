@@ -31,8 +31,6 @@ public class XMerge {
         List<File> runFiles = new ArrayList<>();
         runFiles.add(new File("runs1.txt"));
         runFiles.add(new File("runs2.txt"));
-        // print the number of run files
-        System.err.println("Amount of runs: " + runFiles.size());
         mergeRuns2Way(runFiles);
     }
 
@@ -41,6 +39,8 @@ public class XMerge {
             System.err.println("Expected exactly 2 run files for merging.");
             System.exit(1);
         }
+
+        System.err.println("Merging runs...");
 
         File tape1 = runFiles.get(0);
         File tape2 = runFiles.get(1);
@@ -52,7 +52,7 @@ public class XMerge {
         int runsPerFile = Math.max((totalLines1 + runLength - 1) / runLength,
                 (totalLines2 + runLength - 1) / runLength);
 
-        if (runsPerFile > 1) {
+        if (totalLines1 > 0 && totalLines2 > 0) {
             while (runsPerFile > 1) {
                 mergePass(tape1, tape2, tape3, tape4, runsPerFile);
                 runsPerFile = (runsPerFile + 1) / 2;
@@ -75,13 +75,23 @@ public class XMerge {
             if (tape2.exists())
                 tape2.delete();
         } else if (totalLines1 + totalLines2 > 0) {
-            System.err.println("Merging final runs...");
+            // handles the case where one of the input files is empty
+            System.err.println("Only one run per file, outputting directly to stdout...");
             if (totalLines1 > 0) {
                 outputRunToStdout(tape1);
             }
             if (totalLines2 > 0) {
                 outputRunToStdout(tape2);
             }
+            if (tape1.exists())
+                tape1.delete();
+            if (tape2.exists())
+                tape2.delete();
+        } else {
+            // handle completely empty input files
+            System.err.println("No data in input files, creating empty output.");
+            
+            // Clean up any empty files
             if (tape1.exists())
                 tape1.delete();
             if (tape2.exists())

@@ -35,7 +35,6 @@ public class XSplit {
             System.err.println("Outputting runs to runs.txt");
             outputRunsToFile(runs, new File("runs.txt"));
         }
-        // Two arguments: Leave runs1.txt and runs2.txt for XMerge, no cleanup here
     }
 
     private static List<File> createInitialRuns() throws IOException {
