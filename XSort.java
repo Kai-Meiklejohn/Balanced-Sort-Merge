@@ -14,20 +14,24 @@ public class XSort {
             System.exit(1);
         }
 
-        String[] splitArgs = args.length == 1 ? new String[] { "XSplit", args[0] }
-                : new String[] { "XSplit", args[0], "2" };
-        ProcessBuilder splitPb = new ProcessBuilder("java", splitArgs[0], splitArgs[1]);
+        // Execute XSplit
+        ProcessBuilder splitPb = new ProcessBuilder("java", "XSplit", args[0]);
         if (args.length == 2)
-            splitPb.command().add("2");
+            splitPb.command().add(args[1]);
         splitPb.inheritIO();
         Process splitProcess = splitPb.start();
         try {
-            splitProcess.waitFor();
+            int exitCode = splitProcess.waitFor();
+            if (exitCode != 0) {
+                System.err.println("XSplit failed with exit code " + exitCode);
+                System.exit(exitCode);
+            }
         } catch (InterruptedException e) {
             System.err.println("XSplit interrupted: " + e.getMessage());
             System.exit(1);
         }
 
+        // If we're doing a 2-way merge, execute XMerge
         if (args.length == 2) {
             if (!args[1].equals("2")) {
                 System.out.println("Solo project supports only 2-way merge. Use 2 as second argument.");
@@ -37,7 +41,11 @@ public class XSort {
             mergePb.inheritIO();
             Process mergeProcess = mergePb.start();
             try {
-                mergeProcess.waitFor();
+                int exitCode = mergeProcess.waitFor();
+                if (exitCode != 0) {
+                    System.err.println("XMerge failed with exit code " + exitCode);
+                    System.exit(exitCode);
+                }
             } catch (InterruptedException e) {
                 System.err.println("XMerge interrupted: " + e.getMessage());
                 System.exit(1);
