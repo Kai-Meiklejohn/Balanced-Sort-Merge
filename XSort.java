@@ -18,7 +18,11 @@ public class XSort {
         ProcessBuilder splitPb = new ProcessBuilder("java", "XSplit", args[0]);
         if (args.length == 2)
             splitPb.command().add(args[1]);
-        splitPb.inheritIO();
+            
+        // Redirect input from parent process but keep error stream visible
+        splitPb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        splitPb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        
         Process splitProcess = splitPb.start();
         try {
             int exitCode = splitProcess.waitFor();
@@ -38,7 +42,11 @@ public class XSort {
                 System.exit(1);
             }
             ProcessBuilder mergePb = new ProcessBuilder("java", "XMerge", args[0], "2");
-            mergePb.inheritIO();
+            
+            // Redirect output to parent process but keep error stream visible
+            mergePb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            mergePb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            
             Process mergeProcess = mergePb.start();
             try {
                 int exitCode = mergeProcess.waitFor();
