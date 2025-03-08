@@ -28,92 +28,151 @@ public class XMerge {
             System.exit(1);
         }
 
-        List<File> runFiles = new ArrayList<>();
-        runFiles.add(new File("runs1.txt"));
-        runFiles.add(new File("runs2.txt"));
-        mergeRuns2Way(runFiles);
-    }
+        File tape1 = new File("runs1.txt");
+        File tape2 = new File("runs2.txt");
+        File temp1 = new File("temp1.txt");
+        File temp2 = new File("temp2.txt");
 
-    private static void mergeRuns2Way(List<File> runFiles) throws IOException {
-        if (runFiles.size() != 2 || !runFiles.get(0).exists() || !runFiles.get(1).exists()) {
-            System.err.println("Expected exactly 2 run files (runs1.txt, runs2.txt) to exist.");
+        // Check if input files exist
+        if (!tape1.exists() || !tape2.exists()) {
+            System.err.println("Input run files (runs1.txt or runs2.txt) are missing.");
             System.exit(1);
         }
 
-        System.err.println("Merging runs...");
+        List<File> inputTapes = new ArrayList<>();
+        inputTapes.add(tape1);
+        inputTapes.add(tape2);
+        List<File> outputTapes = new ArrayList<>();
+        outputTapes.add(temp1);
+        outputTapes.add(temp2);
 
-        File tape1 = runFiles.get(0);
-        File tape2 = runFiles.get(1);
-        File tape3 = new File("temp1.txt");
-        File tape4 = new File("temp2.txt");
+        int totalLines = countLines(tape1) + countLines(tape2);
+        performBalancedMerge(inputTapes, outputTapes, totalLines);
 
-        int totalLines1 = countLines(tape1);
-        int totalLines2 = countLines(tape2);
-        int runsPerFile = Math.max((totalLines1 + runLength - 1) / runLength,
-                                   (totalLines2 + runLength - 1) / runLength);
-
-        System.err.println("Initial runs per file: " + runsPerFile);
-
-        // Multi-pass merge until one run remains
-        while (runsPerFile > 1) {
-            mergePass(tape1, tape2, tape3, tape4);
-            runsPerFile = (runsPerFile + 1) / 2; // Ceiling division
-            if (tape1.exists()) tape1.delete();
-            if (tape2.exists()) tape2.delete();
-            if (tape3.exists()) tape3.renameTo(new File("runs1.txt"));
-            if (tape4.exists()) tape4.renameTo(new File("runs2.txt"));
-            tape1 = new File("runs1.txt");
-            tape2 = new File("runs2.txt");
-            tape3 = new File("temp1.txt");
-            tape4 = new File("temp2.txt");
-            System.err.println("Runs per file after pass: " + runsPerFile);
+        // Clean up temporary files
+        for (File file : inputTapes) {
+            if (file.exists() && !file.delete()) {
+                System.err.println("Failed to delete " + file.getName());
+            }
         }
-
-        // Final merge to stdout when one run per file remains
-        mergePass(tape1, tape2, null, null);
-        if (tape1.exists()) tape1.delete();
-        if (tape2.exists()) tape2.delete();
+        for (File file : outputTapes) {
+            if (file.exists() && !file.delete()) {
+                System.err.println("Failed to delete " + file.getName());
+            }
+        }
     }
 
-    private static void mergePass(File in1, File in2, File out1, File out2) throws IOException {
-        try (BufferedReader reader1 = new BufferedReader(new FileReader(in1));
-             BufferedReader reader2 = new BufferedReader(new FileReader(in2));
-             PrintWriter writer1 = out1 != null ? new PrintWriter(new FileWriter(out1)) : new PrintWriter(System.out, true);
-             PrintWriter writer2 = out2 != null ? new PrintWriter(new FileWriter(out2)) : null) {
+    private static void performBalancedMerge(List<File> inputTapes, List<File> outputTapes, int totalLines) throws IOException {
+        int pass = 0;
+        int linesProcessed = 0;
+
+        while (linesProcessed < totalLines) {
+            // Delete output tapes if they exist to avoid appending
+            for (File file : outputTapes) {
+                if (file.exists() && !file.delete()) {
+                    System.err.println("Failed to delete " + file.getName());
+                }
+            }
+
+            linesProcessed = mergePass(inputTapes, outputTapes, pass);
+            pass++;
+
+            // If all lines are in one tape, output and exit
+            if (linesProcessed >= totalLines) {
+                File finalTape = outputTapes.get(0);
+                if (finalTape.exists() && countLines(finalTape) == totalLines) {
+                    outputToStdout(finalTape);
+                    break;
+                }
+            }
+
+            // Swap tapes for next pass
+            List<File> temp = inputTapes;
+            inputTapes = outputTapes;
+            outputTapes = temp;
+        }
+    }
+
+    private static int mergePass(List<File> inputTapes, List<File> outputTapes, int pass) throws IOException {
+        try (BufferedReader reader1 = new BufferedReader(new FileReader(inputTapes.get(0)));
+             BufferedReader reader2 = new BufferedReader(new FileReader(inputTapes.get(1)));
+             PrintWriter writer1 = new PrintWriter(new FileWriter(outputTapes.get(0)));
+             PrintWriter writer2 = new PrintWriter(new FileWriter(outputTapes.get(1)))) {
 
             String line1 = reader1.readLine();
             String line2 = reader2.readLine();
-            boolean useFirstOutput = true;
+            int linesWritten = 0;
+            int runLines1 = 0;
+            int runLines2 = 0;
+            boolean writeToFirst = true;
+            PrintWriter currentWriter = writer1;
 
             while (line1 != null || line2 != null) {
-                PrintWriter currentWriter = useFirstOutput || writer2 == null ? writer1 : writer2;
-                int linesWritten = 0;
+                // Start a new run if previous run is complete
+                if (runLines1 >= runLength * (1 << pass) || (runLines1 > 0 && line1 == null)) {
+                    appendRemaining(reader2, currentWriter, line2);
+                    line2 = null;
+                    runLines1 = 0;
+                    runLines2 = 0;
+                    writeToFirst = !writeToFirst;
+                    currentWriter = writeToFirst ? writer1 : writer2;
+                    continue;
+                }
+                if (runLines2 >= runLength * (1 << pass) || (runLines2 > 0 && line2 == null)) {
+                    appendRemaining(reader1, currentWriter, line1);
+                    line1 = null;
+                    runLines1 = 0;
+                    runLines2 = 0;
+                    writeToFirst = !writeToFirst;
+                    currentWriter = writeToFirst ? writer1 : writer2;
+                    continue;
+                }
 
-                // Merge one pair of runs (up to runLength each) into a single sorted run
-                while (linesWritten < runLength * 2 && (line1 != null || line2 != null)) {
-                    if (line1 == null) {
-                        currentWriter.println(line2);
-                        line2 = reader2.readLine();
-                        linesWritten++;
-                    } else if (line2 == null) {
+                // Merge current pair
+                if (line1 == null) {
+                    currentWriter.println(line2);
+                    line2 = reader2.readLine();
+                    runLines2++;
+                    linesWritten++;
+                } else if (line2 == null) {
+                    currentWriter.println(line1);
+                    line1 = reader1.readLine();
+                    runLines1++;
+                    linesWritten++;
+                } else {
+                    if (line1.compareTo(line2) <= 0) {
                         currentWriter.println(line1);
                         line1 = reader1.readLine();
-                        linesWritten++;
-                    } else if (line1.compareTo(line2) <= 0) {
-                        currentWriter.println(line1);
-                        line1 = reader1.readLine();
-                        linesWritten++;
+                        runLines1++;
                     } else {
                         currentWriter.println(line2);
                         line2 = reader2.readLine();
-                        linesWritten++;
+                        runLines2++;
                     }
+                    linesWritten++;
                 }
+            }
 
-                // Switch output for the next merged run (if not final pass)
-                if (writer2 != null && (line1 != null || line2 != null)) {
-                    useFirstOutput = !useFirstOutput;
-                }
+            System.err.println("Pass " + pass + ": " + linesWritten + " lines merged");
+            return linesWritten;
+        }
+    }
+
+    private static void appendRemaining(BufferedReader reader, PrintWriter writer, String currentLine) throws IOException {
+        if (currentLine != null) {
+            writer.println(currentLine);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.println(line);
+            }
+        }
+    }
+
+    private static void outputToStdout(File file) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
             }
         }
     }
@@ -121,7 +180,9 @@ public class XMerge {
     private static int countLines(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int lines = 0;
-            while (reader.readLine() != null) lines++;
+            while (reader.readLine() != null) {
+                lines++;
+            }
             return lines;
         }
     }
