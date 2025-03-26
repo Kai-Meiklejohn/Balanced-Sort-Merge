@@ -59,7 +59,6 @@ Performs balanced 2-way merge of sorted runs:
 - [Heap Sort Visualisation](https://www.cs.usfca.edu/~galles/visualization/HeapSort.html)
 - [Heap Sort Tutorial](https://www.geeksforgeeks.org/heap-sort/)
 - [Merge Sort Tutorial](https://www.geeksforgeeks.org/merge-sort/)
-- AI Assistance (GitHub Copilot): Helped with documentation and clarifying requirements.
 
 ## Pseudocode (High-Level Description)
 Below is a plain-English breakdown of the program's algorithm, split into three components that work together to implement a balanced 2-way sort merge.
