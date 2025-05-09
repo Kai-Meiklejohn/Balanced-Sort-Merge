@@ -1,10 +1,9 @@
 # Balanced-Sort-Merge-assignment
 Name: Kai Meiklejohn
-Student ID: 1632448  
-Solo project implementing a 2-way balanced sort merge with heapsort.
+Implementing a 2-way balanced sort merge with heapsort.
 
 ## Overview
-This project implements an external sorting algorithm using a 2-way balanced sort merge, as specified for a solo solution. It sorts text files line-by-line (like the Linux sort command) by:
+This project implements an external sorting algorithm using a 2-way balanced sort merge. It sorts text files line-by-line (like the Linux sort command) by:
 
 1. Creating initial sorted runs using heapsort.
 2. Merging those runs with a 2-way balanced merge process.
