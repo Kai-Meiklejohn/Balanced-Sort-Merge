@@ -1,7 +1,6 @@
 // XSort.java
 // Combines XSplit and XMerge
 // Name: Kai Meiklejohn
-// ID: 1632448
 // Solo project: 2-way sort merge
 
 import java.io.*;
