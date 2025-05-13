@@ -1,7 +1,6 @@
 // XMerge.java
 // Performs 2-way merge on pre-created runs
 // Name: Kai Meiklejohn
-// ID: 1632448
 
 import java.io.*;
 import java.util.ArrayList;
