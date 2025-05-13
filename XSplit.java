@@ -1,7 +1,6 @@
 // XSplit.java
 // Creates initial sorted runs from standard input
 // Name: Kai Meiklejohn
-// ID: 1632448
 
 import java.io.*;
 import java.util.ArrayList;
